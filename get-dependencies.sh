@@ -43,7 +43,7 @@ pacman -Syu --noconfirm --needed \
 	qt6-tools           \
 	qt6-wayland         \
 	qt6-translations    \
-	sdl2                \
+	sdl3                \
 	unzip               \
 	vulkan-headers      \
 	vulkan-mesa-layers  \

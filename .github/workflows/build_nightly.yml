@@ -72,7 +72,7 @@ jobs:
         id: release_check
         run: |
           ANY_EXISTS=false
-          for tag in nightly-android nightly-linux nightly-macos nightly-windows; do
+          for tag in nightly-linux nightly-windows; do
             if gh release view "$tag" --repo "${{ github.repository }}" > /dev/null 2>&1; then
               ANY_EXISTS=true
               echo "Release $tag exists"
@@ -103,7 +103,7 @@ jobs:
   build-android:
     name: Build Android APK (Standard)
     needs: [check-version]
-    if: needs.check-version.outputs.should_build == 'true'
+    if: false  # Disabled — Windows/Linux only nightly
     runs-on: ubuntu-latest
     outputs:
       git_hash: ${{ steps.get_hash.outputs.git_hash }}
@@ -202,7 +202,7 @@ jobs:
   build-android-8elite:
     name: Build Android APK (Snapdragon 8 Elite)
     needs: [check-version]
-    if: needs.check-version.outputs.should_build == 'true'
+    if: false  # Disabled — Windows/Linux only nightly
     runs-on: ubuntu-latest
     outputs:
       git_hash: ${{ steps.get_hash.outputs.git_hash }}
@@ -444,7 +444,7 @@ jobs:
   build-macos:
     name: "Citron Build (macOS)"
     needs: [check-version]
-    if: needs.check-version.outputs.should_build == 'true'
+    if: false  # Disabled — Windows/Linux only nightly
     runs-on: macos-latest
     timeout-minutes: 180
 
@@ -454,7 +454,7 @@ jobs:
 
       - name: Install System Dependencies via Homebrew
         run: |
-          brew install ninja boost catch2 cmake enet fmt ffmpeg glslang hidapi libvpx lld llvm nasm nlohmann-json openal-soft sdl2 molten-vk vulkan-headers vulkan-loader webp lz4 zstd openssl@3 pkg-config libusb opus python@3.12
+          brew install ninja boost catch2 cmake enet fmt ffmpeg glslang hidapi libvpx lld llvm nasm nlohmann-json openal-soft molten-vk vulkan-headers vulkan-loader webp lz4 zstd openssl@3 pkg-config libusb opus python@3.12
 
       - name: Clone Citron Source
         shell: bash
@@ -518,12 +518,11 @@ jobs:
         working-directory: ./citron
         run: |
           OPENAL_DIR="$(brew --prefix openal-soft)"
-          SDL2_DIR="$(brew --prefix sdl2)"
           cmake -B build -S . -G "Ninja" \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
-            -DCMAKE_PREFIX_PATH="$OPENAL_DIR;$SDL2_DIR" \
+            -DCMAKE_PREFIX_PATH="$OPENAL_DIR" \
             -DCITRON_BUILD_TYPE=Nightly \
             -DCITRON_USE_FASTER_LD=OFF \
             -DCITRON_USE_BUNDLED_VCPKG=OFF \
@@ -534,7 +533,7 @@ jobs:
             -DENABLE_WEB_SERVICE=ON \
             -DENABLE_OPENSSL=ON \
             -DENABLE_SDL2=ON \
-            -DCITRON_USE_EXTERNAL_SDL2=OFF
+            -DCITRON_USE_EXTERNAL_SDL2=ON
 
       - name: Build Citron
         working-directory: ./citron
@@ -773,7 +772,7 @@ jobs:
   release-android:
     name: "Release Android Nightly"
     needs: [check-version, build-android, build-android-8elite]
-    if: needs.check-version.outputs.should_build == 'true'
+    if: false  # Disabled — Windows/Linux only nightly
     permissions:
       contents: write
     runs-on: ubuntu-latest
@@ -938,7 +937,7 @@ jobs:
   # RELEASE - macOS
   # ===========================================================================
   release-macos:
-    if: ${{ github.ref_name == 'main' }}
+    if: false  # Disabled — Windows/Linux only nightly
     name: "Release macOS Nightly"
     needs: [check-version, build-macos]
     permissions:
