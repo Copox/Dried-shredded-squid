@@ -33,7 +33,7 @@ jobs:
       - name: Check if feature branch exists and get commit hash
         id: branch_check
         run: |
-          REPO_URL="https://github.com/citron-neo/emulator.git"
+          REPO_URL="https://github.com/CollectingW/emulator.git"
           FEATURE="NULL"
 
           if git ls-remote --heads "$REPO_URL" "$FEATURE" | grep -q "$FEATURE"; then
@@ -112,7 +112,7 @@ jobs:
       - name: Clone Citron Source Code
         shell: bash
         run: |
-          REPO_URL="https://github.com/citron-neo/emulator.git"
+          REPO_URL="https://github.com/CollectingW/emulator.git"
           FEATURE="feature/android-game-file-extraction"
           ATTEMPT=0
           MAX_ATTEMPTS=999
@@ -226,7 +226,7 @@ jobs:
       - name: Clone Citron Source Code
         shell: bash
         run: |
-          REPO_URL="https://github.com/citron-neo/emulator.git"
+          REPO_URL="https://github.com/CollectingW/emulator.git"
           FEATURE="feature/android-game-file-extraction"
           ATTEMPT=0
           MAX_ATTEMPTS=999
@@ -381,7 +381,7 @@ jobs:
       - name: Clone Citron Source Code
         shell: bash
         run: |
-          REPO_URL="https://github.com/citron-neo/emulator.git"
+          REPO_URL="https://github.com/CollectingW/emulator.git"
           ATTEMPT=0
           MAX_ATTEMPTS=999
           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
@@ -466,7 +466,7 @@ jobs:
             ATTEMPT=$((ATTEMPT + 1))
             echo "Attempt $ATTEMPT of $MAX_ATTEMPTS: Cloning repository..."
             rm -rf citron
-            if git clone --recursive "https://github.com/citron-neo/emulator.git" citron; then
+            if git clone --recursive "https://github.com/CollectingW/emulator.git" citron; then
               echo "✅ Clone successful on attempt $ATTEMPT."
               break
             fi
@@ -669,7 +669,7 @@ jobs:
 
             rm -rf citron
 
-            if git clone --recursive "https://github.com/citron-neo/emulator.git" citron; then
+            if git clone --recursive "https://github.com/CollectingW/emulator.git" citron; then
               echo "Clone successful on attempt $ATTEMPT."
               break
             fi
@@ -808,7 +808,7 @@ jobs:
           prerelease: false
           files: "*.apk"
           body: |
-            **Citron Upstream Commit:** [`${{ needs.check-version.outputs.new_hash }}`](https://github.com/citron-neo/emulator/commit/${{ needs.check-version.outputs.new_hash_full }})
+            **Citron Upstream Commit:** [`${{ needs.check-version.outputs.new_hash }}`](https://github.com/CollectingW/emulator/commit/${{ needs.check-version.outputs.new_hash_full }})
 
             This build is based on the latest Citron emulator source code from the **${{ env.BRANCH_NAME }}** branch.
 
@@ -865,7 +865,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Checkout Upstream Repository
-        run: git clone https://github.com/citron-neo/emulator.git upstream_repo
+        run: git clone https://github.com/CollectingW/emulator.git upstream_repo
 
       - name: Set Version
         id: version
@@ -900,7 +900,7 @@ jobs:
             *.AppImage*
             *.tar.zst
           body: |
-            **Citron Upstream Commit:** [`${{ needs.check-version.outputs.new_hash }}`](https://github.com/citron-neo/emulator/commit/${{ needs.check-version.outputs.new_hash_full }})
+            **Citron Upstream Commit:** [`${{ needs.check-version.outputs.new_hash }}`](https://github.com/CollectingW/emulator/commit/${{ needs.check-version.outputs.new_hash_full }})
 
             This build is based on the latest Citron emulator source code from the upstream repository.
 
@@ -971,7 +971,7 @@ jobs:
           prerelease: false
           files: "*.dmg"
           body: |
-            **Citron Upstream Commit:** [`${{ needs.check-version.outputs.new_hash }}`](https://github.com/citron-neo/emulator/commit/${{ needs.check-version.outputs.new_hash_full }})
+            **Citron Upstream Commit:** [`${{ needs.check-version.outputs.new_hash }}`](https://github.com/CollectingW/emulator/commit/${{ needs.check-version.outputs.new_hash_full }})
             This build is based on the latest Citron emulator source code from the upstream repository.
             **Build Details:**
             - Platform: macOS (Universal)
@@ -1038,7 +1038,7 @@ jobs:
           prerelease: false
           files: "*.zip"
           body: |
-            **Citron Upstream Commit:** [`${{ needs.check-version.outputs.new_hash }}`](https://github.com/citron-neo/emulator/commit/${{ needs.check-version.outputs.new_hash_full }})
+            **Citron Upstream Commit:** [`${{ needs.check-version.outputs.new_hash }}`](https://github.com/CollectingW/emulator/commit/${{ needs.check-version.outputs.new_hash_full }})
 
             This build is based on the latest Citron emulator source code from the upstream repository.
 

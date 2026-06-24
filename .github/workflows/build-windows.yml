@@ -21,7 +21,7 @@ jobs:
       - name: Get upstream commit hash
         id: upstream
         run: |
-          REPO_URL="https://github.com/citron-neo/emulator.git"
+          REPO_URL="https://github.com/CollectingW/emulator.git"
           FULL_HASH=$(git ls-remote "$REPO_URL" HEAD | cut -f1)
           SHORT_HASH=$(echo "$FULL_HASH" | cut -c1-7)
           echo "hash_short=$SHORT_HASH" >> $GITHUB_OUTPUT
@@ -76,7 +76,7 @@ jobs:
 
             rm -rf citron
 
-            if git clone --recursive "https://github.com/citron-neo/emulator.git" citron; then
+            if git clone --recursive "https://github.com/CollectingW/emulator.git" citron; then
               echo "Clone successful on attempt $ATTEMPT."
               break
             fi
@@ -210,7 +210,7 @@ jobs:
           files: |
             release-artifacts/*-x64-clangtron.zip
           body: |
-            **Citron Upstream Commit:** [`${{ needs.check-version.outputs.new_hash }}`](https://github.com/citron-neo/emulator/commit/${{ needs.check-version.outputs.new_hash_full }})
+            **Citron Upstream Commit:** [`${{ needs.check-version.outputs.new_hash }}`](https://github.com/CollectingW/emulator/commit/${{ needs.check-version.outputs.new_hash_full }})
 
             This build is based on the latest Citron emulator source code from the upstream repository.
 
