@@ -1,7 +1,6 @@
 # 🧟 NZ:P Switch Emulator Edition — Citron CI
 
 [![Build Citron (Nightly)](https://github.com/CollectingW/CI/actions/workflows/build_nightly.yml/badge.svg)](https://github.com/CollectingW/CI/actions/workflows/build_nightly.yml)
-[![Build Citron (Stable)](https://github.com/CollectingW/CI/actions/workflows/build_stable.yml/badge.svg)](https://github.com/CollectingW/CI/actions/workflows/build_stable.yml)
 
 ## What is this?
 
