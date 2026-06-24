@@ -13,7 +13,7 @@ NZ:P Switch Emulator Edition pairs a heavily-modified Nintendo Switch build of *
 * **Nintendo Switch 2 Joy-Con 2** controller support (detection, naming, pairing)
 * **ETC2 texture format** support (for NZ:P's compressed textures)
 * Additive **GL/GR back-button** remapping in the input UI
-* UI tweaks (dark theme, custom background, icon/poster handling)
+* Multiplayer co-op functionality VIA LDN w/ Yuzu Online servers to connect to friends & play co-op (REQUIRES GAME TO BE TURNED OFF & JOIN A LOBBY FIRST BEFORE RE-OPENING THE GAME TO FULLY INITIALIZE THE LDN CONNECTION)
 
 Upstream's CI builds upstream Citron, which wouldn't include any of those changes — so this fork's workflows clone and build **`CollectingW/emulator`** and publish the resulting AppImages / packages, giving anyone the customized emulator that goes with the game.
 
