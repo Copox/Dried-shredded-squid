@@ -9,14 +9,12 @@ This is the build/CI repository for **[NZ:P Switch Emulator Edition](https://git
 
 ## Why does it exist?
 
-NZ:P Switch Emulator Edition pairs a heavily-modified Nintendo Switch build of **Nazi Zombies: Portable** with a **matching fork of the Citron emulator**, so the game and the emulator are tuned to run together. The emulator fork adds, among other things:
-
-* **Nintendo Switch 2 Joy-Con 2** controller support (detection, naming, pairing)
+* **SDL-3** controller support (detection, naming, pairing)
 * **ETC2 texture format** support (for NZ:P's compressed textures)
-* Additive **GL/GR back-button** remapping in the input UI
-* Multiplayer co-op functionality VIA LDN w/ Yuzu Online servers to connect to friends & play co-op (REQUIRES GAME TO BE TURNED OFF & JOIN A LOBBY FIRST BEFORE RE-OPENING THE GAME TO FULLY INITIALIZE THE LDN CONNECTION)
-* **Nextendo Network online play** — sign in with a Nextendo Network account and play supported retail titles online, with no hosts-file edits, external DNS, or manual SSL bypass. Browser-based sign-in (the emulator never handles your password), in-app friends list, presence, and play-time sync. **Work in progress — expect bugs.**
-
+* Additive **back-button** remapping in the input UI
+* Multiplayer co-op functionality VIA LDN to connect to friends & play co-op (REQUIRES GAME TO BE TURNED OFF & JOIN A LOBBY FIRST BEFORE RE-OPENING THE GAME TO FULLY INITIALIZE THE LDN CONNECTION)
+* **Nextendo Network online play**
+* 
 Upstream's CI builds upstream Citron, which wouldn't include any of's workflows clone and build **`CollectingW/emulator`** and publish
 the resulting AppImages / packages, giving anyone the customized eme.
 
