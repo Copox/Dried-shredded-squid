@@ -1,6 +1,7 @@
 # 🧟 NZ:P Switch Emulator / Nextendo Network Citron Neo Fork
 
-[![Build Citron (Nightly)](https://github.com/CollectingW/CI/actions/workflows/build_nightly.yml/badge.svg)](https://github.com/CollectingW/CI/actions/workflows/build_nightly.yml)
+[![Build Citron (Windows)](https://github.com/CollectingW/CI/actions/workflows/build-windows.yml/badge.svg)](https://github.com/CollectingW/CI/actions/workflows/build-windows.yml)
+[![Build Citron (Linux)](https://github.com/CollectingW/CI/actions/workflows/build-linux.yml/badge.svg)](https://github.com/CollectingW/CI/actions/workflows/build-linux.yml)
 
 ## What is this?
 
