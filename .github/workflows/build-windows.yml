@@ -163,7 +163,7 @@ jobs:
           PYTHON_EXECUTABLE="$(cygpath -u '${{ steps.python.outputs.python-path }}')" \
             ./build-clangtron-windows.sh setup --compiler clang-cl
 
-      - name: Build Citron (clang-cl, LTO full)
+      - name: Build Citron (clang-cl)
         shell: "msys2 {0}"
         working-directory: ./citron
         env:
@@ -171,7 +171,7 @@ jobs:
         run: |
           export CITRON_BUILD_TYPE=Release
           export PYTHON_EXECUTABLE="$(cygpath -u '${{ steps.python.outputs.python-path }}')"
-          ./build-clangtron-windows.sh use --compiler clang-cl --pgo none --lto full
+          ./build-clangtron-windows.sh use --compiler clang-cl --pgo none --lto none
 
       - name: Package Windows Build (clang-cl)
         shell: bash
