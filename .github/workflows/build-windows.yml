@@ -53,12 +53,11 @@ jobs:
             echo "should_build=false" >> $GITHUB_OUTPUT
           fi
 
-
   build-clangtron:
-    name: "Citron Build (Windows Clangtron - x64)"
+    name: "Citron Build (Windows clang-cl - x64)"
     needs: [check-version]
     if: needs.check-version.outputs.should_build == 'true'
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     timeout-minutes: 240
 
     steps:
@@ -66,111 +65,131 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Clone Citron Source (Clangtron)
+      - name: Clone Citron Source
+        shell: bash
         run: |
           ATTEMPT=0
           MAX_ATTEMPTS=999
           while true; do
             ATTEMPT=$((ATTEMPT + 1))
-            echo "Attempt $ATTEMPT of $MAX_ATTEMPTS: Cloning Citron..."
-
+            echo "Attempt $ATTEMPT: Cloning Citron..."
             rm -rf citron
-
             if git clone --recursive "https://github.com/CollectingW/emulator.git" citron; then
               echo "Clone successful on attempt $ATTEMPT."
               break
             fi
-
             if [ $ATTEMPT -ge $MAX_ATTEMPTS ]; then
               echo "Failed after $MAX_ATTEMPTS attempts."
               exit 1
             fi
-
             echo "Clone failed. Retrying in 15 seconds..."
             sleep 15
           done
 
-      - name: Cache llvm-mingw toolchain
-        uses: actions/cache@v4
-        id: cache-llvm-mingw
-        with:
-          path: ./citron/build/llvm-mingw
-          key: clangtron-llvm-mingw-${{ runner.os }}-20260224
-
-      - name: Cache vcpkg archives (Clangtron)
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/vcpkg/archives
-            citron/externals/vcpkg/downloads
-          key: clangtron-vcpkg-${{ runner.os }}-${{ hashFiles('citron/vcpkg.json', 'citron/build-clangtron-windows.sh') }}
-          restore-keys: |
-            clangtron-vcpkg-${{ runner.os }}-
-
-      - name: Get Version (Clangtron)
+      - name: Get Version
         id: version
+        shell: bash
         working-directory: ./citron
         run: |
           git fetch --tags
           VERSION=$(git rev-parse --short HEAD)
           echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
 
-      - name: Skip BOLT build (not needed for --pgo none)
+      # windows-latest ships VS2022 without the clang-cl component by default -- add it via
+      # the already-installed VS instance's own installer, matching what a fresh local
+      # "Desktop development with C++" + "C++ Clang Compiler for Windows" install gives you.
+      - name: Add clang-cl component to Visual Studio
+        shell: powershell
         run: |
-          echo '#!/bin/bash' | sudo tee /usr/local/bin/llvm-bolt-21
-          echo '#!/bin/bash' | sudo tee /usr/local/bin/merge-fdata-21
-          sudo chmod +x /usr/local/bin/llvm-bolt-21
-          sudo chmod +x /usr/local/bin/merge-fdata-21
+          $vsInstaller = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
+          $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products '*' -property installationPath
+          & $vsInstaller modify --installPath "$vsPath" --add Microsoft.VisualStudio.Component.VC.Llvm.Clang --quiet --norestart --wait
+          if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 3010) { throw "VS modify failed with exit code $LASTEXITCODE" }
 
-      - name: Get FFmpeg Version
-        id: ffmpeg-ver
-        working-directory: ./citron
+      - name: Setup MSYS2 (CLANG64)
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: CLANG64
+          update: true
+          install: >-
+            mingw-w64-clang-x86_64-ninja
+            mingw-w64-clang-x86_64-nasm
+            mingw-w64-clang-x86_64-glslang
+            mingw-w64-clang-x86_64-sccache
+
+      - name: Setup native Windows Python
+        uses: actions/setup-python@v5
+        id: python
+        with:
+          python-version: "3.12"
+
+      - name: Verify Strawberry Perl is present
+        shell: bash
         run: |
-          VERSION=$(tr -d '[:space:]' < externals/ffmpeg/ffmpeg/RELEASE)
-          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+          test -x "/c/Strawberry/perl/bin/perl.exe" || {
+            echo "::error::Strawberry Perl not found at the expected windows-latest image path."
+            exit 1
+          }
 
-      - name: Cache built FFmpeg
+      - name: Cache CPM sources
         uses: actions/cache@v4
         with:
-          path: citron/build/use-nopgo/externals/ffmpeg-${{ steps.ffmpeg-ver.outputs.VERSION }}
-          key: clangtron-ffmpeg-built-${{ runner.os }}-${{ steps.ffmpeg-ver.outputs.VERSION }}-${{ hashFiles('citron/build-clangtron-windows.sh') }}
+          path: C:\msys64\home\**\.cache\cpm
+          key: clangcl-cpm-${{ runner.os }}-${{ hashFiles('citron/CMakeModules/dependencies.cmake', 'citron/vcpkg.json') }}
+          restore-keys: |
+            clangcl-cpm-${{ runner.os }}-
 
-      - name: Cache Qt (Clangtron)
+      - name: Cache built FFmpeg/OpenSSL (clang-cl)
         uses: actions/cache@v4
         with:
           path: |
-            citron/build/use-nopgo/externals/qt
-            citron/build/use-nopgo/externals/qt-host
-          key: clangtron-qt-6.9.3-${{ runner.os }}-${{ hashFiles('citron/build-clangtron-windows.sh') }}
+            citron/build/clang-cl/use/openssl-cache
+            citron/build/clang-cl/use/ffmpeg-cache
+          key: clangcl-native-deps-${{ runner.os }}-${{ hashFiles('citron/build-clangtron-windows.sh') }}
+
+      - name: Cache Qt (clang-cl)
+        uses: actions/cache@v4
+        with:
+          path: |
+            citron/build/clang-cl/generate/externals/qt
+            citron/build/clang-cl/generate/externals/qt-host
+          key: clangcl-qt-6.9.3-${{ runner.os }}-${{ hashFiles('citron/build-clangtron-windows.sh') }}
 
       - name: Setup Clangtron Build Environment
+        shell: "msys2 {0}"
         working-directory: ./citron
         run: |
           chmod +x build-clangtron-windows.sh
-          ./build-clangtron-windows.sh setup
-          echo "${GITHUB_WORKSPACE}/citron/build/llvm-mingw/bin" >> "$GITHUB_PATH"
+          PYTHON_EXECUTABLE="$(cygpath -u '${{ steps.python.outputs.python-path }}')" \
+            ./build-clangtron-windows.sh setup --compiler clang-cl
 
-      - name: Build Citron (Clangtron LTO)
+      - name: Build Citron (clang-cl, LTO full)
+        shell: "msys2 {0}"
         working-directory: ./citron
+        env:
+          MSYSTEM: CLANG64
         run: |
           export CITRON_BUILD_TYPE=Release
-          ./build-clangtron-windows.sh use --pgo none --lto full
+          export PYTHON_EXECUTABLE="$(cygpath -u '${{ steps.python.outputs.python-path }}')"
+          ./build-clangtron-windows.sh use --compiler clang-cl --pgo none --lto full
 
-      - name: Package Windows Build (Clangtron)
+      - name: Package Windows Build (clang-cl)
+        shell: bash
         run: |
           mkdir -p dist
-          BIN_DIR="./citron/build/use-nopgo/bin"
+          BIN_DIR="./citron/build/clang-cl/use"
           if [ ! -d "$BIN_DIR" ]; then
             echo "::error::Build output not found at $BIN_DIR"
             exit 1
           fi
           cd "$BIN_DIR"
-          zip -r "${GITHUB_WORKSPACE}/dist/Citron-windows-nightly-${{ steps.version.outputs.VERSION }}-x64-clangtron.zip" .
+          rm -rf user backup update_result.txt update_helper_log.txt
+          7z a -tzip "${GITHUB_WORKSPACE}/dist/Citron-windows-nightly-${{ steps.version.outputs.VERSION }}-x64-clangcl.zip" .
 
-      - name: Upload Windows Build (Clangtron)
+      - name: Upload Windows Build (clang-cl)
         uses: actions/upload-artifact@v4
         with:
-          name: Citron-Windows-Nightly-Clangtron-x64
+          name: Citron-Windows-Nightly-ClangCL-x64
           path: "dist/*.zip"
 
   release:
@@ -186,14 +205,14 @@ jobs:
       - name: Download Windows artifacts
         uses: actions/download-artifact@v4
         with:
-          name: Citron-Windows-Nightly-Clangtron-x64
+          name: Citron-Windows-Nightly-ClangCL-x64
           path: ./release-artifacts
       - name: Get Version from Filename
         shell: bash
         run: |
-          FILENAME=$(basename "$(ls ./release-artifacts/Citron-windows-nightly-*-x64-clangtron.zip)")
+          FILENAME=$(basename "$(ls ./release-artifacts/Citron-windows-nightly-*-x64-clangcl.zip)")
           VERSION=${FILENAME#Citron-windows-nightly-}
-          VERSION=${VERSION%-x64-clangtron.zip}
+          VERSION=${VERSION%-x64-clangcl.zip}
           echo "APP_VERSION=${VERSION}" >> $GITHUB_ENV
       - name: Delete Previous Release
         run: gh release delete "nightly-windows" --repo "${{ github.repository }}" --cleanup-tag -y || true
@@ -208,7 +227,7 @@ jobs:
           tag_name: "nightly-windows"
           prerelease: false
           files: |
-            release-artifacts/*-x64-clangtron.zip
+            release-artifacts/*-x64-clangcl.zip
           body: |
             **Citron Upstream Commit:** [`${{ needs.check-version.outputs.new_hash }}`](https://github.com/CollectingW/emulator/commit/${{ needs.check-version.outputs.new_hash_full }})
 
@@ -216,7 +235,7 @@ jobs:
 
             **Build Details:**
             - Platform: Windows (x64)
-            - Toolchain: Clangtron (Clang LTO cross-compiled from Linux)
+            - Toolchain: clang-cl (native Windows, CPM dependencies)
             - Build Type: Release
             - Date: ${{ env.BUILD_DATE }}
       - name: Update LATEST_VERSION
@@ -242,5 +261,5 @@ jobs:
             exit 0
           fi
           curl -H "Content-Type: application/json" \
-               -d "{\"content\":\"🪟 **New Windows Build Available!**\n\n📦 **Version:** \`${{ env.APP_VERSION }}\`\n📅 **Date:** ${DATE}\n🔧 **Toolchain:** Clangtron (Clang LTO)\n🔗 **Download:** $DOWNLOAD_URL\"}" \
+               -d "{\"content\":\"🪟 **New Windows Build Available!**\n\n📦 **Version:** \`${{ env.APP_VERSION }}\`\n📅 **Date:** ${DATE}\n🔧 **Toolchain:** clang-cl (native)\n🔗 **Download:** $DOWNLOAD_URL\"}" \
                "$WEBHOOK_URL"
