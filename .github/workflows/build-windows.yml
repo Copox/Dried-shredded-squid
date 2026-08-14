@@ -134,7 +134,7 @@ jobs:
       - name: Cache CPM sources (includes Qt/FFmpeg/OpenSSL)
         uses: actions/cache@v4
         with:
-          path: C:/msys64/home/**/.cache/cpm
+          path: D:/a/_temp/msys64/home/**/.cache/cpm
           key: clangcl-cpm-${{ runner.os }}-${{ hashFiles('citron/CMakeModules/dependencies.cmake', 'citron/vcpkg.json', 'citron/build-clangtron-windows.sh') }}
           restore-keys: |
             clangcl-cpm-${{ runner.os }}-
