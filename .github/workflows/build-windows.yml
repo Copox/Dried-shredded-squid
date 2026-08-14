@@ -153,7 +153,7 @@ jobs:
         env:
           MSYSTEM: CLANG64
         run: |
-          export CITRON_BUILD_TYPE=Release
+          export CITRON_BUILD_TYPE=Nightly
           export PYTHON_EXECUTABLE="$(cygpath -u '${{ steps.python.outputs.python-path }}')"
           ./build-clangtron-windows.sh use --compiler clang-cl --pgo none --lto none
 
