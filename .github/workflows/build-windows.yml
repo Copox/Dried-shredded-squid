@@ -131,29 +131,13 @@ jobs:
             exit 1
           }
 
-      - name: Cache CPM sources
+      - name: Cache CPM sources (includes Qt/FFmpeg/OpenSSL)
         uses: actions/cache@v4
         with:
-          path: C:\msys64\home\**\.cache\cpm
-          key: clangcl-cpm-${{ runner.os }}-${{ hashFiles('citron/CMakeModules/dependencies.cmake', 'citron/vcpkg.json') }}
+          path: C:/msys64/home/**/.cache/cpm
+          key: clangcl-cpm-${{ runner.os }}-${{ hashFiles('citron/CMakeModules/dependencies.cmake', 'citron/vcpkg.json', 'citron/build-clangtron-windows.sh') }}
           restore-keys: |
             clangcl-cpm-${{ runner.os }}-
-
-      - name: Cache built FFmpeg/OpenSSL (clang-cl)
-        uses: actions/cache@v4
-        with:
-          path: |
-            citron/build/clang-cl/use/openssl-cache
-            citron/build/clang-cl/use/ffmpeg-cache
-          key: clangcl-native-deps-${{ runner.os }}-${{ hashFiles('citron/build-clangtron-windows.sh') }}
-
-      - name: Cache Qt (clang-cl)
-        uses: actions/cache@v4
-        with:
-          path: |
-            citron/build/clang-cl/generate/externals/qt
-            citron/build/clang-cl/generate/externals/qt-host
-          key: clangcl-qt-6.9.3-${{ runner.os }}-${{ hashFiles('citron/build-clangtron-windows.sh') }}
 
       - name: Setup Clangtron Build Environment
         shell: "msys2 {0}"
