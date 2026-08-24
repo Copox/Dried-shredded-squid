@@ -22,8 +22,8 @@ jobs:
       - name: Get upstream commit hash
         id: upstream
         run: |
-          REPO_URL="https://github.com/CollectingW/emulator.git"
-          FULL_HASH=$(git ls-remote "$REPO_URL" HEAD | cut -f1)
+          REPO_URL="https://github.com/Copox/Driedsquids.git"
+          FULL_HASH=$(git ls-remote "$REPO_URL" refs/heads/mod | cut -f1)
           SHORT_HASH=$(echo "$FULL_HASH" | cut -c1-7)
           echo "hash_short=$SHORT_HASH" >> $GITHUB_OUTPUT
           echo "hash_full=$FULL_HASH" >> $GITHUB_OUTPUT
@@ -103,7 +103,7 @@ jobs:
       - name: Clone Citron Source Code
         shell: bash
         run: |
-          REPO_URL="https://github.com/CollectingW/emulator.git"
+          REPO_URL="https://github.com/Copox/Driedsquids.git"
           
           ATTEMPT=0
           MAX_ATTEMPTS=999
@@ -115,7 +115,7 @@ jobs:
             # 1. CRITICAL: Wipe the directory before every attempt
             rm -rf emulator
 
-            if git clone --recursive "https://github.com/CollectingW/emulator.git" emulator; then
+            if git clone --recursive -b mod "https://github.com/Copox/Driedsquids.git" emulator; then
               echo "✅ Clone successful on attempt $ATTEMPT."
               exit 0
             fi
@@ -181,7 +181,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Checkout Upstream Repository
-        run: git clone https://github.com/CollectingW/emulator.git upstream_repo
+        run: git clone --recursive -b mod https://github.com/Copox/Driedsquids.git upstream_repo
 
       - name: Set Version
         id: version
