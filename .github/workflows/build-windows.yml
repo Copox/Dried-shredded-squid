@@ -21,8 +21,8 @@ jobs:
       - name: Get upstream commit hash
         id: upstream
         run: |
-          REPO_URL="https://github.com/CollectingW/emulator.git"
-          FULL_HASH=$(git ls-remote "$REPO_URL" HEAD | cut -f1)
+          REPO_URL="https://github.com/Copox/Driedsquids.git"
+          FULL_HASH=$(git ls-remote "$REPO_URL" refs/heads/mod | cut -f1)
           SHORT_HASH=$(echo "$FULL_HASH" | cut -c1-7)
           echo "hash_short=$SHORT_HASH" >> $GITHUB_OUTPUT
           echo "hash_full=$FULL_HASH" >> $GITHUB_OUTPUT
@@ -74,7 +74,7 @@ jobs:
             ATTEMPT=$((ATTEMPT + 1))
             echo "Attempt $ATTEMPT: Cloning Citron..."
             rm -rf citron
-            if git clone --recursive "https://github.com/CollectingW/emulator.git" citron; then
+            if git clone --recursive -b mod "https://github.com/Copox/Driedsquids.git" citron; then
               echo "Clone successful on attempt $ATTEMPT."
               break
             fi
